@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Simulation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>⛓ Blockchain Simulation</h1>
+            <p>Simulasi transaksi dan proses mining blockchain</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="card">
+            <h2>Buat Transaksi</h2>
+
+            <form action="/transaction" method="POST">
+
+                <label>Pengirim (From)</label>
+                <select name="sender" required>
+                    {% for user in users %}
+                        <option value="{{ user }}">{{ user }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Penerima (To)</label>
+                <select name="receiver" required>
+                    {% for user in users %}
+                        <option value="{{ user }}">{{ user }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Jumlah Coin</label>
+                <input type="number" name="amount" min="1" step="any" placeholder="Masukkan jumlah coin" required>
+
+                <button type="submit">Kirim Transaksi</button>
+
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Mining Block</h2>
+
+            <form action="/mine" method="POST">
+
+                <label>Pilih Miner</label>
+                <select name="miner" required>
+                    {% for miner in miners %}
+                        <option value="{{ miner }}">{{ miner }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="mine-button">⛏ Mulai Mining</button>
+
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Transaksi Menunggu</h2>
+
+            {% if pending %}
+                {% for transaction in pending %}
+                    <div class="transaction">
+                        <span>{{ transaction.sender }}</span>
+                        <span>→</span>
+                        <span>{{ transaction.receiver }}</span>
+                        <strong>{{ transaction.amount }} Coin</strong>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty">Belum ada transaksi yang menunggu.</p>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2>Blockchain</h2>
+
+            <div class="status">
+                Status Blockchain:
+                <strong>{{ "VALID" if valid else "INVALID" }}</strong>
+            </div>
+
+            {% for block in chain %}
+                <div class="block">
+                    <h3>Block {{ block.index }}</h3>
+
+                    <p><strong>Transactions:</strong></p>
+
+                    {% for transaction in block.transactions %}
+                        <div class="transaction">
+                            <span>{{ transaction.sender }}</span>
+                            <span>→</span>
+                            <span>{{ transaction.receiver }}</span>
+                            <strong>{{ transaction.amount }} Coin</strong>
+                        </div>
+                    {% endfor %}
+
+                    <p><strong>Hash:</strong></p>
+                    <div class="hash">{{ block.hash }}</div>
+
+                    <p><strong>Previous Hash:</strong></p>
+                    <div class="hash">{{ block.previous_hash }}</div>
+
+                    <p><strong>Nonce:</strong> {{ block.nonce }}</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        <form action="/reset" method="POST" onsubmit="return confirm('Yakin ingin mereset blockchain?')">
+            <button type="submit" class="reset-button">Reset Blockchain</button>
+        </form>
+
+        <footer>
+            <p>Blockchain Simulation Project</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
